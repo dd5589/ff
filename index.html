@@ -3,69 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Форма регистрации</title>
+    <title>Telegram Registration Form</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
+            padding: 20px;
             max-width: 500px;
             margin: 0 auto;
-            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 25px;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
         }
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"] {
+        input {
             width: 100%;
-            padding: 8px;
+            padding: 14px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #0088cc;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.2);
         }
         button {
-            background-color: #4CAF50;
+            background: linear-gradient(to right, #0088cc, #00aaff);
             color: white;
-            padding: 10px 15px;
             border: none;
-            border-radius: 4px;
+            padding: 16px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 16px;
+            margin-top: 10px;
+            transition: opacity 0.3s;
         }
         button:hover {
-            background-color: #45a049;
+            opacity: 0.9;
+        }
+        #status {
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error {
+            background-color: #ffdddd;
+            color: #cc0000;
+        }
+        .success {
+            background-color: #ddffdd;
+            color: #008800;
         }
     </style>
 </head>
 <body>
-    <h1>Форма регистрации</h1>
-    <form action="#" method="post">
-        <div class="form-group">
-            <label for="firstName">Имя:</label>
-            <input type="text" id="firstName" name="firstName" required>
-        </div>
+    <div class="container">
+        <h1>📝 Регистрация</h1>
+        <div id="status"></div>
         
-        <div class="form-group">
-            <label for="lastName">Фамилия:</label>
-            <input type="text" id="lastName" name="lastName" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Электронная почта:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="phone">Телефон:</label>
-            <input type="tel" id="phone" name="phone" required>
-        </div>
-        
-        <button type="submit">Отправить</button>
-    </form>
+        <form id="registration-form">
+            <div class="form-group">
+                <label for="first_name">Имя:</label>
+                <input type="text" id="first_name" name="first_name" placeholder="Ваше имя" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">Фамилия:</label>
+                <input type="text" id="last_name" name="last_name" placeholder="Ваша фамилия" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Телефон:</label>
+                <input type="tel" id="phone" name="phone" placeholder="+7 (999) 999-99-99" required>
+            </div>
+            
+            <button type="submit">Отправить данные</button>
+        </form>
+    </div>
+
+    <script>
+        // Проверка инициализации Telegram WebApp
+        function initTelegram() {
+            try {
+                if (window.Telegram && Telegram.WebApp) {
+                    Telegram.WebApp.ready();
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Показать статус
+        function showStatus(message, isSuccess = true) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = isSuccess ? 'success' : 'error';
+            status.style.display = 'block';
+        }
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!initTelegram()) {
+                showStatus('⚠️ Откройте эту страницу в Telegram для корректной работы', false);
+            }
+        });
+
+        // Обработка отправки формы
+        document.getElementById('registration-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!initTelegram()) {
+                showStatus('Ошибка: страница не открыта в Telegram', false);
+                return;
+            }
+
+            // Сбор данных
+            const formData = {
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                // Отправка данных
+                Telegram.WebApp.sendData(JSON.stringify(formData));
+                showStatus('✅ Данные успешно отправлены! Закрываю окно...', true);
+                
+                // Закрытие WebApp через 1 секунду
+                setTimeout(() => {
+                    Telegram.WebApp.close();
+                }, 1000);
+            } catch (error) {
+                showStatus(`❌ Ошибка отправки: ${error.message}`, false);
+            }
+        });
+    </script>
 </body>
 </html>
