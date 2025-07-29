@@ -172,5 +172,22 @@
             }
         });
     </script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value
+    };
+    
+    // Отправка данных в Telegram бот
+    Telegram.WebApp.sendData(JSON.stringify(formData));
+    Telegram.WebApp.close();
+});
+</script>
 </body>
 </html>
